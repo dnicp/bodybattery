@@ -35,7 +35,10 @@ export default class App extends Component {
 
     // db creation
     db.transaction(tx => {
-      tx.executeSql("create table if not exists test4 (id text, name real, address real);");
+      // temp to delete
+      tx.executeSql("drop table if exists test1");
+      // temp to delete above
+      tx.executeSql("create table if not exists test1 (id text, timetosleep text, timewakeup text);");
     },
     ()=>console.log('error create db'),
     ()=>console.log('success create db')
@@ -96,15 +99,31 @@ export default class App extends Component {
     });
   }
 
-  getId=()=>{this.setState({id: this.state.id});return(this.state.id+1);};
-
+  
   handleLogSleepTime=(event)=>
   {
 
     this.setState({
       time_to_sleep: moment(),
-    })
-    
+    });
+
+    let timetosleep_record = moment(this.state.time_to_sleep).format('YYYY-MM-DD HH:MM:SS');
+    let uuid = this.uuidv4();
+
+    db.transaction(
+      tx=>{
+
+          tx.executeSql('insert into test1 (id,timetosleep) VALUES (?,?)',[uuid],timetosleep_record);
+         
+          tx.executeSql('select * from test1 where id = ?',[uuid],(_,results)=>{
+              console.log(results.rows.item(0));
+            }
+          );        
+
+        },
+        ()=>console.log('error transaction'),
+        ()=>console.log('success transaction')
+      );  
 
 
 
@@ -146,7 +165,7 @@ export default class App extends Component {
           <Text>Time woke up: {this.state.time_wokeup.format("Do YYYY,h:mm:ss a")}</Text>
           <Text>Battery: {this.state.battery_percentage}%</Text>
           <Button title="log sleep time" onPress = {this.handleLogSleepTime}/>
-          <Text> </Text>
+          <Text></Text>
           <Button title="log wake up time" onPress = {this.handleLogWakeUpTime}/>
           <Text> </Text>
           <Button title="sqlite" onPress = {this.sqliteQuery} />
