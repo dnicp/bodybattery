@@ -18,7 +18,7 @@ export default class App extends Component {
       time_wokeup: moment(),
       hours_slept:0,
       battery_percentage: 0,
-      name:'',
+      id:0,
 
 
     }
@@ -84,6 +84,8 @@ export default class App extends Component {
       )
   };
 
+  getId=()=>{this.setState({id: this.state.id});return(this.state.id+1);};
+
   handleLogSleepTime=(event)=>
   {
 
@@ -108,10 +110,10 @@ export default class App extends Component {
 
     db.transaction(
       tx=>{
-          // tx.executeSql('insrt into test1 (id,name) VALUES (1,daniel)',);
-          tx.executeSql('select * from test1',[],(_,{rows})=>console.log({rows}));        
-          // tx.executeSql('insrt into text1 (id,name,address) VALUES (2,"caroline","somewhere2")',);
-          // tx.executeSql('select * from text1',[],(_,{rows})=>{console.log({rows})});
+          tx.executeSql('insert into test2 (id,name,address) VALUES (?,"daniel","somewhere1")',[this.getId()]);
+          tx.executeSql('insert into test2 (id,name,address) VALUES (?,"caroline","somewhere2")',[this.getId()]);
+          tx.executeSql('select * from test2',[],(_,{rows})=>console.log(JSON.stringify(rows)));        
+
         },
         ()=>console.log('error transaction'),
         ()=>console.log('success transaction')
