@@ -112,7 +112,11 @@ export default class App extends Component {
       tx=>{
           tx.executeSql('insert into test2 (id,name,address) VALUES (?,"daniel","somewhere1")',[this.getId()]);
           tx.executeSql('insert into test2 (id,name,address) VALUES (?,"caroline","somewhere2")',[this.getId()]);
-          tx.executeSql('select * from test2',[],(_,{rows})=>console.log(JSON.stringify(rows)));        
+          tx.executeSql('select * from test2 where name = ?',['daniel'],(_,results)=>{
+              console.log(results.rows.item(0).name);
+              this.setState({name: results.rows.item(0).name});
+            }
+          );        
 
         },
         ()=>console.log('error transaction'),
