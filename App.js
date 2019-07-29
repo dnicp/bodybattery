@@ -35,7 +35,7 @@ export default class App extends Component {
 
     // db creation
     db.transaction(tx => {
-      tx.executeSql("create table if not exists test1 (id integer, name text, address text);");
+      tx.executeSql("create table if not exists test4 (id text, name real, address real);");
     },
     ()=>console.log('error create db'),
     ()=>console.log('success create db')
@@ -84,6 +84,18 @@ export default class App extends Component {
       )
   };
 
+  uuidv4() {
+    var d = new Date().getTime();
+    if (typeof performance !== 'undefined' && typeof performance.now === 'function'){
+        d += performance.now(); //use high-precision timer if available
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = (d + Math.random() * 16) % 16 | 0;
+        d = Math.floor(d / 16);
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+  }
+
   getId=()=>{this.setState({id: this.state.id});return(this.state.id+1);};
 
   handleLogSleepTime=(event)=>
@@ -110,11 +122,11 @@ export default class App extends Component {
 
     db.transaction(
       tx=>{
-          tx.executeSql('insert into test2 (id,name,address) VALUES (?,"daniel","somewhere1")',[this.getId()]);
-          tx.executeSql('insert into test2 (id,name,address) VALUES (?,"caroline","somewhere2")',[this.getId()]);
-          tx.executeSql('select * from test2 where name = ?',['daniel'],(_,results)=>{
-              console.log(results.rows.item(0).name);
-              this.setState({name: results.rows.item(0).name});
+          tx.executeSql('insert into test4 (id,name,address) VALUES (?,"daniel","somewhere1")',[this.uuidv4()]);
+          tx.executeSql('insert into test4 (id,name,address) VALUES (?,"caroline","somewhere2")',[this.uuidv4()]);
+          tx.executeSql('select * from test4 where name = ?',['daniel'],(_,results)=>{
+              console.log(results.rows.item(0).id);
+              this.setState({name: results.rows.item(0).id});
             }
           );        
 
