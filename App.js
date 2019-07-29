@@ -2,9 +2,11 @@ import React, {Component} from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button,Alert } from 'react-native';
 import moment from "moment";
+import { SQLite } from 'expo-sqlite';
 
 
 var std_full_sleep = 8;
+const db = SQLite.openDatabase('bbdb');
 
 export default class App extends Component {
   constructor(props) {
@@ -15,9 +17,12 @@ export default class App extends Component {
       time_wokeup: moment(),
       hours_slept:0,
       battery_percentage: 0,
+      name:'',
 
 
     }
+
+
   
   };
 
@@ -85,10 +90,16 @@ export default class App extends Component {
     this.setState ({time_wokeup: moment()})
   };
 
+  sqliteQuery=()=>{
+    // console.log(db);
+
+    db.transaction((tx)=>{tx.executeSql('SELECT * FROM test1',)},
+    ()=>{console.log('error')},()=>{console.log('success')});
+      
+    }
 
 
   render(){
-
 
     return (
         <View style={styles.container}>
@@ -99,6 +110,9 @@ export default class App extends Component {
           <Button title="log sleep time" onPress = {this.handleLogSleepTime}/>
           <Text> </Text>
           <Button title="log wake up time" onPress = {this.handleLogWakeUpTime}/>
+          <Text> </Text>
+          <Button title="sqlite" onPress = {this.sqliteQuery} />
+          <Text> name: {this.state.name} </Text>
       </View>
      
     );
