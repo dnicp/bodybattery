@@ -32,6 +32,15 @@ export default class App extends Component {
     this.timerID = setInterval(
       ()=>this.tick(), 1000
     );
+
+    // db creation
+    db.transaction(tx => {
+      tx.executeSql("create table if not exists test1 (id integer, name text, address text);");
+    },
+    ()=>console.log('error create db'),
+    ()=>console.log('success create db')
+    );
+
   };
 
   componentWillMount(){
@@ -95,21 +104,17 @@ export default class App extends Component {
   
   
   sqliteQuery=()=>{
-    db.transaction(tx => {
-      tx.executeSql("create table if not exists text1 (id integer primary key not null, name text, address text);");
-    },
-    console.log('error create db'),
-    console.log('success create db')
-    );
+    
 
     db.transaction(
-      (tx)=>{
-          tx.executeSql('insrt into text1 (id,name,address) VALUES (1,"daniel","somewhere") ',);    
-          tx.executeSql('insrt into text1 (id,name,address) VALUES (2,"caroline","somewhere2")',);
-          tx.executeSql('select * from text1',[],(_,{rows})=>{console.log(rows)});
+      tx=>{
+          // tx.executeSql('insrt into test1 (id,name) VALUES (1,daniel)',);
+          tx.executeSql('select * from test1',[],(_,{rows})=>console.log({rows}));        
+          // tx.executeSql('insrt into text1 (id,name,address) VALUES (2,"caroline","somewhere2")',);
+          // tx.executeSql('select * from text1',[],(_,{rows})=>{console.log({rows})});
         },
-        console.log('error transaction'),
-        console.log('success transaction')
+        ()=>console.log('error transaction'),
+        ()=>console.log('success transaction')
       );  
     };
 
