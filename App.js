@@ -5,8 +5,9 @@ import moment from "moment";
 import { SQLite } from 'expo-sqlite';
 
 
+
 var std_full_sleep = 8;
-const db = SQLite.openDatabase('bbdb');
+const db = SQLite.openDatabase('newdb.db');
 
 export default class App extends Component {
   constructor(props) {
@@ -35,6 +36,7 @@ export default class App extends Component {
 
   componentWillMount(){
     clearInterval(this.timerID);
+
   };
 
   roundTo(n, digits) {
@@ -90,13 +92,26 @@ export default class App extends Component {
     this.setState ({time_wokeup: moment()})
   };
 
+  
+  
   sqliteQuery=()=>{
-    // console.log(db);
+    db.transaction(tx => {
+      tx.executeSql("create table if not exists text1 (id integer primary key not null, name text, address text);");
+    },
+    console.log('error create db'),
+    console.log('success create db')
+    );
 
-    db.transaction((tx)=>{tx.executeSql('SELECT * FROM test1',)},
-    ()=>{console.log('error')},()=>{console.log('success')});
-      
-    }
+    db.transaction(
+      (tx)=>{
+          tx.executeSql('insrt into text1 (id,name,address) VALUES (1,"daniel","somewhere") ',);    
+          tx.executeSql('insrt into text1 (id,name,address) VALUES (2,"caroline","somewhere2")',);
+          tx.executeSql('select * from text1',[],(_,{rows})=>{console.log(rows)});
+        },
+        console.log('error transaction'),
+        console.log('success transaction')
+      );  
+    };
 
 
   render(){
