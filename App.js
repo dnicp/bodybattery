@@ -42,7 +42,7 @@ export default class App extends Component {
     db.transaction(
       tx => {
       // temp to delete
-      tx.executeSql("drop table if exists test1");
+      // tx.executeSql("drop table if exists test1");
 
       // temp to delete above
       tx.executeSql("create table if not exists test1 (id text, sessionlen real, timetosleep text, timewakeup text);");
@@ -54,25 +54,14 @@ export default class App extends Component {
 
 
 
-    // assign current session id
-
-    db.transaction(
-      tx=>{
-          // insrt some dummy records into transactions
-          tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup) VALUES (?,?,?,?)',[this.uuidv4(),4, "2019-07-30 11:07:46",]);
-          tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup) VALUES (?,?,?,?)',[this.uuidv4(),2.0, "2019-07-29 10:07:46","2019-07-30 8:57:46"]);
-          tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup) VALUES (?,?,?,?)',[this.uuidv4(),2.0, "2019-07-27 10:07:46","2019-07-30 8:57:46"]);
-             
-        },
-        ()=>console.log('data inserted'),
-        ()=>console.log('data insert error')
-      );  
+    // assign current session id 
 
     db.transaction(
       tx=>{
         // find the last session that the duration is over 3hr
             tx.executeSql('select * from test1 where timewakeup is null',[],(_,results)=>{
             this.setState({currentsessionid: results.rows.item(0).id});
+            console.log(results.rows.item(0).timetosleep);
           },
           ()=>console.log('found last record'),
           ()=>console.log('query error')
@@ -81,7 +70,8 @@ export default class App extends Component {
       );  
 
      
-    // let currentsessionid = 
+    
+    
 
   };
 
@@ -144,14 +134,16 @@ export default class App extends Component {
   
   handleLogSleepTime=(event)=>
   {
-    this.setState({time_to_sleep: moment(),turntable:'wakeup'});
+    
 
     db.transaction(
       tx=>{
           tx.executeSql('insert into test1 (id,timetosleep) VALUES (?,?)',[this.uuidv4(),this.state.time_to_sleep]);
         },
         ()=>console.log('sleep time wrote to db'),()=>console.log('sleep time writting to db error')
-      );  
+      );
+      // turn the toggle
+      this.setState({time_to_sleep: moment(),turntable:'wakeup'});
   };
 
   handleLogWakeUpTime=(event)=>
