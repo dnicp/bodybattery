@@ -23,6 +23,7 @@ export default class App extends Component {
       id:0,
       currentsessionid:'',
       currentsessionlen: 0.0,
+      turntable: 'sleep',
 
 
     }
@@ -143,36 +144,19 @@ export default class App extends Component {
   
   handleLogSleepTime=(event)=>
   {
-
-    this.setState({
-      time_to_sleep: moment(),
-    });
-
-    let timetosleep_record = moment(this.state.time_to_sleep).format('YYYY-MM-DD HH:MM:SS');
-    let uuid = this.uuidv4();
+    this.setState({time_to_sleep: moment(),turntable:'wakeup'});
 
     db.transaction(
       tx=>{
-
-          tx.executeSql('insert into test1 (id,timetosleep) VALUES (?,?)',[uuid,timetosleep_record]);
-         
-          tx.executeSql('select * from test1 where id = ?',[uuid],(_,results)=>{
-              console.log(results.rows.item(0));
-            }
-          );        
-
+          tx.executeSql('insert into test1 (id,timetosleep) VALUES (?,?)',[this.uuidv4(),this.state.time_to_sleep]);
         },
-        ()=>console.log('error transaction'),
-        ()=>console.log('success transaction')
+        ()=>console.log('sleep time wrote to db'),()=>console.log('sleep time writting to db error')
       );  
-
-  
-
   };
 
   handleLogWakeUpTime=(event)=>
   {
-    this.setState ({time_wokeup: moment()});
+    this.setState ({time_wokeup: moment(),turntable:'sleep'});
     // write timestamp into db
     db.transaction(
       tx=>{
@@ -189,11 +173,6 @@ export default class App extends Component {
 
   };
 
-  
-  
-
-
-
   render(){
 
     return (
@@ -202,12 +181,13 @@ export default class App extends Component {
           <Text>Time went to sleep: {this.state.time_to_sleep.format("Do YYYY,h:mm:ss a")}</Text>
           <Text>Time woke up: {this.state.time_wokeup.format("Do YYYY,h:mm:ss a")}</Text>
           <Text>Battery: {this.state.battery_percentage}%</Text>
-          <Button title="log sleep time" onPress = {this.handleLogSleepTime}/>
+          <Button title="sleep now" onPress = {this.handleLogSleepTime}/>
           <Text></Text>
           <Button title="log wake up time" onPress = {this.handleLogWakeUpTime}/>
           <Text> </Text>
           <Button title="sqlite" />
           <Text> current session length: {this.state.currentsessionlen} </Text>
+          <Text> turn table: {this.state.turntable} </Text>
       </View>
      
     );
