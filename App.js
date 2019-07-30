@@ -7,6 +7,7 @@ import * as FileSystem from 'expo-file-system';
 
 
 
+
 var std_full_sleep = 8;
 const db = SQLite.openDatabase('newdb.db');
 
@@ -40,15 +41,9 @@ export default class App extends Component {
 
     // db creation
     db.transaction(
-      tx => {
-      // temp to delete
-      // tx.executeSql("drop table if exists test1");
-
-      // temp to delete above
-      tx.executeSql("create table if not exists test1 (id text, sessionlen real, timetosleep text, timewakeup text);");
+      tx => {tx.executeSql("create table if not exists test1 (id text, sessionlen real, timetosleep text, timewakeup text);");
     },
-    ()=>console.log('error create db'),
-    ()=>console.log('success create db')
+    ()=>console.log('error create db'),()=>console.log('success create db')
   
     );
 
@@ -63,8 +58,7 @@ export default class App extends Component {
             this.setState({currentsessionid: results.rows.item(0).id});
             console.log(results.rows.item(0).timetosleep);
           },
-          ()=>console.log('found last record'),
-          ()=>console.log('query error')
+          ()=>console.log('found last record'),()=>console.log('query error')
           );        
         },
       );  
@@ -165,6 +159,7 @@ export default class App extends Component {
 
   };
 
+
   render(){
 
     return (
@@ -177,9 +172,9 @@ export default class App extends Component {
           <Text></Text>
           <Button title="log wake up time" onPress = {this.handleLogWakeUpTime}/>
           <Text> </Text>
-          <Button title="sqlite" />
           <Text> current session length: {this.state.currentsessionlen} </Text>
           <Text> turn table: {this.state.turntable} </Text>
+          <Button title="doc" onPress = {()=>console.log('press',FileSystem.documentDirectory)} />
       </View>
      
     );
