@@ -21,7 +21,8 @@ export default class App extends Component {
       battery_percentage: 0,
       
       id:0,
-      currentsessionid:0,
+      currentsessionid:'',
+      currentsessionlen: 0.0,
 
 
     }
@@ -171,29 +172,26 @@ export default class App extends Component {
 
   handleLogWakeUpTime=(event)=>
   {
-    this.setState ({time_wokeup: moment()})
+    this.setState ({time_wokeup: moment()});
+    // write timestamp into db
+    db.transaction(
+      tx=>{
+        // find the last session that the duration is over 3hr
+            tx.executeSql('update test1 set timewakeup=? where id=?',[this.state.time_wokeup,this.state.currentsessionid],(_,results)=>{
+              this.setState({time_to_sleep: results.rows.item(0).timetosleep});
+            });
+            this.setState({currentsessionlen: this.state.time_wokeup.diff(this.state.time_to_sleep,'hours',true)});
+            tx.executeSql('update test1 set sessionlen=? where id=?',[this.state.currentsessionlen,this.state.currentsessionid]);
+        },
+        ()=>console.log('wakeup time wrote to db'),
+        ()=>console.log('wakeup time writting to db error')
+      );
+
   };
 
   
   
-  sqliteQuery=()=>{
-    
 
-    db.transaction(
-      tx=>{
-          tx.executeSql('insert into test4 (id,name,address) VALUES (?,"daniel","somewhere1")',[this.uuidv4()]);
-          tx.executeSql('insert into test4 (id,name,address) VALUES (?,"caroline","somewhere2")',[this.uuidv4()]);
-          tx.executeSql('select * from test4 where name = ?',['daniel'],(_,results)=>{
-              console.log(results.rows.item(0).id);
-              this.setState({name: results.rows.item(0).id});
-            }
-          );        
-
-        },
-        ()=>console.log('error transaction'),
-        ()=>console.log('success transaction')
-      );  
-    };
 
 
   render(){
@@ -208,8 +206,8 @@ export default class App extends Component {
           <Text></Text>
           <Button title="log wake up time" onPress = {this.handleLogWakeUpTime}/>
           <Text> </Text>
-          <Button title="sqlite" onPress = {this.sqliteQuery} />
-          <Text> current session id: {this.state.currentsessionid} </Text>
+          <Button title="sqlite" />
+          <Text> current session length: {this.state.currentsessionlen} </Text>
       </View>
      
     );
