@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Button,Alert } from 'react-native';
 import moment from "moment";
 import { SQLite } from 'expo-sqlite';
+import * as FileSystem from 'expo-file-system';
 
 
 
@@ -18,7 +19,9 @@ export default class App extends Component {
       time_wokeup: moment(),
       hours_slept:0,
       battery_percentage: 0,
+      
       id:0,
+      currentsessionid:0,
 
 
     }
@@ -34,15 +37,43 @@ export default class App extends Component {
     );
 
     // db creation
-    db.transaction(tx => {
+    db.transaction(
+      tx => {
       // temp to delete
       tx.executeSql("drop table if exists test1");
+
       // temp to delete above
-      tx.executeSql("create table if not exists test1 (id text, timetosleep text, timewakeup text);");
+      tx.executeSql("create table if not exists test1 (id integer, sessionlen real, timetosleep text, timewakeup text);");
     },
     ()=>console.log('error create db'),
     ()=>console.log('success create db')
+  
     );
+
+    // assign current session id
+
+    db.transaction(
+      tx=>{
+          // insrt some dummy records into transactions
+          tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup) VALUES (?,?,?,?)',[this.getId(),0, "2019-07-30 11:07:46","2019-07-30 11:57:46"]);
+          tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup) VALUES (?,?,?,?)',[this.getId(),0, "2019-07-29 10:07:46","2019-07-30 8:57:46"]);
+             
+        },
+        ()=>console.log('data inserted'),
+        ()=>console.log('data insert error')
+      );  
+
+    db.transaction(
+      tx=>{
+        // find the last session that the duration is over 3hr
+        tx.executeSql('select * from test1',[],(_,results)=>{
+            console.log(results.rows.item(0));
+          });        
+        },
+      );  
+
+     
+    // let currentsessionid = 
 
   };
 
@@ -87,6 +118,7 @@ export default class App extends Component {
       )
   };
 
+  // id method2
   uuidv4() {
     var d = new Date().getTime();
     if (typeof performance !== 'undefined' && typeof performance.now === 'function'){
@@ -99,6 +131,8 @@ export default class App extends Component {
     });
   }
 
+  // id method 1
+  getId=()=>{this.setState({id: this.state.id});return(this.state.id+1);};
   
   handleLogSleepTime=(event)=>
   {
@@ -113,7 +147,7 @@ export default class App extends Component {
     db.transaction(
       tx=>{
 
-          tx.executeSql('insert into test1 (id,timetosleep) VALUES (?,?)',[uuid],timetosleep_record);
+          tx.executeSql('insert into test1 (id,timetosleep) VALUES (?,?)',[uuid,timetosleep_record]);
          
           tx.executeSql('select * from test1 where id = ?',[uuid],(_,results)=>{
               console.log(results.rows.item(0));
@@ -125,7 +159,7 @@ export default class App extends Component {
         ()=>console.log('success transaction')
       );  
 
-
+  
 
   };
 
