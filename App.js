@@ -43,20 +43,23 @@ export default class App extends Component {
       tx.executeSql("drop table if exists test1");
 
       // temp to delete above
-      tx.executeSql("create table if not exists test1 (id integer, sessionlen real, timetosleep text, timewakeup text);");
+      tx.executeSql("create table if not exists test1 (id text, sessionlen real, timetosleep text, timewakeup text);");
     },
     ()=>console.log('error create db'),
     ()=>console.log('success create db')
   
     );
 
+
+
     // assign current session id
 
     db.transaction(
       tx=>{
           // insrt some dummy records into transactions
-          tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup) VALUES (?,?,?,?)',[this.getId(),0, "2019-07-30 11:07:46","2019-07-30 11:57:46"]);
-          tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup) VALUES (?,?,?,?)',[this.getId(),0, "2019-07-29 10:07:46","2019-07-30 8:57:46"]);
+          tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup) VALUES (?,?,?,?)',[this.uuidv4(),4, "2019-07-30 11:07:46",]);
+          tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup) VALUES (?,?,?,?)',[this.uuidv4(),2.0, "2019-07-29 10:07:46","2019-07-30 8:57:46"]);
+          tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup) VALUES (?,?,?,?)',[this.uuidv4(),2.0, "2019-07-27 10:07:46","2019-07-30 8:57:46"]);
              
         },
         ()=>console.log('data inserted'),
@@ -66,9 +69,12 @@ export default class App extends Component {
     db.transaction(
       tx=>{
         // find the last session that the duration is over 3hr
-        tx.executeSql('select * from test1',[],(_,results)=>{
-            console.log(results.rows.item(0));
-          });        
+            tx.executeSql('select * from test1 where timewakeup is null',[],(_,results)=>{
+            this.setState({currentsessionid: results.rows.item(0).id});
+          },
+          ()=>console.log('found last record'),
+          ()=>console.log('query error')
+          );        
         },
       );  
 
@@ -203,7 +209,7 @@ export default class App extends Component {
           <Button title="log wake up time" onPress = {this.handleLogWakeUpTime}/>
           <Text> </Text>
           <Button title="sqlite" onPress = {this.sqliteQuery} />
-          <Text> id: {this.state.name} </Text>
+          <Text> current session id: {this.state.currentsessionid} </Text>
       </View>
      
     );
