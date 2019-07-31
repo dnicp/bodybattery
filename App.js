@@ -41,7 +41,7 @@ export default class App extends Component {
 
     // db creation
     db.transaction(
-      tx => {tx.executeSql("create table if not exists test1 (id text, sessionlen real, timetosleep text, timewakeup text);");
+      tx => {tx.executeSql("create table if not exists test1 (id text, sessionlen real, timetosleep text, timewakeup text, recordcreationtimestamp text);");
     },
     ()=>console.log('error create db'),()=>console.log('success create db')
   
@@ -54,7 +54,7 @@ export default class App extends Component {
     db.transaction(
       tx=>{
         // find the last session that the duration is over 3hr
-            tx.executeSql('select * from test1 where timewakeup is null',[],(_,results)=>{
+            tx.executeSql('select * from test1 order by recordcreationtimestamp desc limit 1',[],(_,results)=>{
             this.setState({currentsessionid: results.rows.item(0).id});
             console.log(results.rows.item(0).timetosleep);
           },
@@ -129,15 +129,16 @@ export default class App extends Component {
   handleLogSleepTime=(event)=>
   {
     
+    // turn the toggle
+    this.setState({time_to_sleep: moment(),turntable:'wakeup'});
 
     db.transaction(
       tx=>{
-          tx.executeSql('insert into test1 (id,timetosleep) VALUES (?,?)',[this.uuidv4(),this.state.time_to_sleep]);
+          tx.executeSql('insert into test1 (id,timetosleep,recordcreationtimestamp) VALUES (?,?)',[this.uuidv4(),this.state.time_to_sleep,this.state.time_to_sleep]);
         },
         ()=>console.log('sleep time wrote to db'),()=>console.log('sleep time writting to db error')
       );
-      // turn the toggle
-      this.setState({time_to_sleep: moment(),turntable:'wakeup'});
+      
   };
 
   handleLogWakeUpTime=(event)=>
@@ -159,6 +160,12 @@ export default class App extends Component {
 
   };
 
+  loadListView =()=> {
+    return(
+    <Text> hello </Text>
+    );
+  }
+
 
   render(){
 
@@ -175,6 +182,8 @@ export default class App extends Component {
           <Text> current session length: {this.state.currentsessionlen} </Text>
           <Text> turn table: {this.state.turntable} </Text>
           <Button title="doc" onPress = {()=>console.log('press',FileSystem.documentDirectory)} />
+          <this.loadListView />
+
       </View>
      
     );
