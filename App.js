@@ -44,7 +44,19 @@ export default class App extends Component {
       tx => {
       // tx.executeSql("drop table if exists test1");
 
-      tx.executeSql("create table if not exists test1 (id text, sessionlen real, timetosleep text, timewakeup text);");
+      tx.executeSql("create table if not exists test1 (id text, sessionlen real, timetosleep text, timewakeup text,creationtimestamp);");
+     // add some records
+    //  tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup,creationtimestamp) VALUES (?,?,?,?,?)',[this.uuidv4(),2.0, "2019-07-27 10:07:46","2019-07-30 8:57:46","2019-07-27 10:07:46"]);
+    //   tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup,creationtimestamp) VALUES (?,?,?,?,?)',[this.uuidv4(),2.0, "2019-07-27 10:07:46","2019-07-30 8:57:46","2019-07-27 10:07:46"]);
+    //   tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup,creationtimestamp) VALUES (?,?,?,?,?)',[this.uuidv4(),2.0, "2019-07-27 10:07:46","2019-07-30 8:57:46","2019-07-27 10:07:46"]);
+      
+
+      tx.executeSql('select * from test1',[],(_,results)=>{
+        console.log('db length: '+results.rows.length);
+        // console.log(results.rows._array);
+      // console.log(results.rows._array[0].id);
+          },
+      );        
     },
     ()=>console.log('error create db'),
     ()=>console.log('success create db')
@@ -200,7 +212,8 @@ export default class App extends Component {
           <Button title="sqlite" />
           <Text> current session length: {this.state.currentsessionlen} </Text>
           <Text> turn table: {this.state.turntable} </Text>
-          <Listview />
+          <Listview />  
+          
       </View>
      
     );
