@@ -4,6 +4,7 @@ import { Button,Alert } from 'react-native';
 import moment from "moment";
 import { SQLite } from 'expo-sqlite';
 import * as FileSystem from 'expo-file-system';
+import Listview from './listview.js'
 
 
 
@@ -41,10 +42,8 @@ export default class App extends Component {
     // db creation
     db.transaction(
       tx => {
-      // temp to delete
-      tx.executeSql("drop table if exists test1");
+      // tx.executeSql("drop table if exists test1");
 
-      // temp to delete above
       tx.executeSql("create table if not exists test1 (id text, sessionlen real, timetosleep text, timewakeup text);");
     },
     ()=>console.log('error create db'),
@@ -52,36 +51,49 @@ export default class App extends Component {
   
     );
 
+    // check the database
+
+    // db.transaction(
+    //   tx=>{
+    //         tx.executeSql('select * from test1',[],(_,results)=>{
+    //         console.log(results.rows.length);
+    //         console.log(results.rows._array);
+    //       },
+    //       ()=>console.log('error'),
+    //       ()=>console.log('success')
+    //       );        
+    //     },
+    //   );  
 
 
     // assign current session id
 
-    db.transaction(
-      tx=>{
-          // insrt some dummy records into transactions
-          tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup) VALUES (?,?,?,?)',[this.uuidv4(),4, "2019-07-30 11:07:46",]);
-          tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup) VALUES (?,?,?,?)',[this.uuidv4(),2.0, "2019-07-29 10:07:46","2019-07-30 8:57:46"]);
-          tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup) VALUES (?,?,?,?)',[this.uuidv4(),2.0, "2019-07-27 10:07:46","2019-07-30 8:57:46"]);
+    // db.transaction(
+    //   tx=>{
+    //       // insrt some dummy records into transactions
+    //       tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup) VALUES (?,?,?,?)',[this.uuidv4(),4, "2019-07-30 11:07:46",]);
+    //       tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup) VALUES (?,?,?,?)',[this.uuidv4(),2.0, "2019-07-29 10:07:46","2019-07-30 8:57:46"]);
+    //       tx.executeSql('insert into test1 (id,sessionlen, timetosleep, timewakeup) VALUES (?,?,?,?)',[this.uuidv4(),2.0, "2019-07-27 10:07:46","2019-07-30 8:57:46"]);
              
-        },
-        ()=>console.log('data inserted'),
-        ()=>console.log('data insert error')
-      );  
+    //     },
+    //     ()=>console.log('data inserted'),
+    //     ()=>console.log('data insert error')
+    //   );  
 
-    db.transaction(
-      tx=>{
-        // find the last session that the duration is over 3hr
-            tx.executeSql('select * from test1 where timewakeup is null',[],(_,results)=>{
-            this.setState({currentsessionid: results.rows.item(0).id});
-          },
-          ()=>console.log('found last record'),
-          ()=>console.log('query error')
-          );        
-        },
-      );  
+    // db.transaction(
+    //   tx=>{
+    //     // find the last session that the duration is over 3hr
+    //         tx.executeSql('select * from test1 where timewakeup is null',[],(_,results)=>{
+    //         this.setState({currentsessionid: results.rows.item(0).id});
+    //       },
+    //       ()=>console.log('found last record'),
+    //       ()=>console.log('query error')
+    //       );        
+    //     },
+    //   );  
 
      
-    // let currentsessionid =    
+    
 
   };
 
@@ -188,6 +200,7 @@ export default class App extends Component {
           <Button title="sqlite" />
           <Text> current session length: {this.state.currentsessionlen} </Text>
           <Text> turn table: {this.state.turntable} </Text>
+          <Listview />
       </View>
      
     );
