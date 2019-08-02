@@ -18,7 +18,8 @@ class Listview extends Component{
     
     db.transaction(
         tx=>{
-            tx.executeSql('select * from test1 order by creationtiemstamp dsec',[],(_,results)=>{
+          tx.executeSql('update test1 set sessionlen= timewakeup - timetosleep');  
+          tx.executeSql('select * from test1 order by creationtiemstamp dsec',[],(_,results)=>{
            
             objects = results.rows._array.splice(1,20);
             // arraylength = objects.length;
@@ -42,7 +43,7 @@ class Listview extends Component{
               <Text>
                 wakeup:{moment(object.timewakeup).format('MM-DD HH:MM')} 
               </Text>
-              <Text> {object.sessionlen} hrs</Text>
+              <Text> {object.sessionlens} hrs</Text>
   
 
         </View>
