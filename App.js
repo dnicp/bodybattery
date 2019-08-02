@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { Button,Alert } from 'react-native';
 import moment from "moment";
 import { SQLite } from 'expo-sqlite';
@@ -212,7 +212,8 @@ export default class App extends Component {
           <Button title="sqlite" />
           <Text> current session length: {this.state.currentsessionlen} </Text>
           <Text> turn table: {this.state.turntable} </Text>
-          <Listview />  
+          <ScrollView containerstyle = "alignitems"><Listview /></ScrollView>
+           
           
       </View>
      

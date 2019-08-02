@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Alert } from 'react-native';
+import { StyleSheet, Text, View, Alert, ScrollView } from 'react-native';
 import { SQLite } from 'expo-sqlite';
+import moment from "moment";
 
 
 const db = SQLite.openDatabase('newdb.db');
@@ -17,9 +18,9 @@ class Listview extends Component{
     
     db.transaction(
         tx=>{
-            tx.executeSql('select * from test1',[],(_,results)=>{
+            tx.executeSql('select * from test1 order by creationtiemstamp dsec',[],(_,results)=>{
            
-            objects = results.rows._array.splice(1,10);
+            objects = results.rows._array.splice(1,20);
             // arraylength = objects.length;
             // console.log(objects.length);
             // console.log(results.rows._array);
@@ -31,7 +32,21 @@ class Listview extends Component{
         ); 
  
     return(
-        objects.map(object=><Text key={object.id}>{object.id}</Text>)
+        objects.map(object=>
+        <View key={object.id} style={{flexDirection: 'row'}}>
+           
+              <Text>
+                to sleep:{moment(object.timetosleep).format('MM-DD HH:MM')} 
+              </Text>
+              <Text> | </Text>
+              <Text>
+                wakeup:{moment(object.timewakeup).format('MM-DD HH:MM')} 
+              </Text>
+              <Text> {object.sessionlen} hrs</Text>
+  
+
+        </View>
+        )
       )
   }
 }
