@@ -1,14 +1,12 @@
 import React, {Component} from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Button,Alert } from 'react-native';
+import { Button,Alert,AsyncStorage } from 'react-native';
 import moment from "moment";
-import { SQLite } from 'expo-sqlite';
-import * as FileSystem from 'expo-file-system';
+
 
 
 
 var std_full_sleep = 8;
-const db = SQLite.openDatabase('newdb.db');
 
 export default class App extends Component {
   constructor(props) {
@@ -32,46 +30,15 @@ export default class App extends Component {
   
   };
 
+
   componentDidMount(){
 
     this.timerID = setInterval(
       ()=>this.tick(), 1000
     );
 
-    // db creation
-    db.transaction(
-      tx => {
-      // temp to delete
-      // tx.executeSql("drop table if exists test1");
-
-      // temp to delete above
-      tx.executeSql("create table if not exists test1 (id text, sessionlen real, timetosleep text, timewakeup text);");
-    },
-    ()=>console.log('error create db'),
-    ()=>console.log('success create db')
-  
-    );
-
-
-
-    // assign current session id 
-
-    db.transaction(
-      tx=>{
-        // find the last session that the duration is over 3hr
-            tx.executeSql('select * from test1 where timewakeup is null',[],(_,results)=>{
-            this.setState({currentsessionid: results.rows.item(0).id});
-            console.log(results.rows.item(0).timetosleep);
-          },
-          ()=>console.log('found last record'),
-          ()=>console.log('query error')
-          );        
-        },
-      );  
-
-     
-    
-    
+    this.async_storeData();
+    this.async_retrieveData();
 
   };
 
@@ -116,6 +83,26 @@ export default class App extends Component {
       )
   };
 
+  async_storeData = async () => {
+    try {
+      await AsyncStorage.setItem('key3',this.state.turntable);
+    } catch (error) {
+      // Error saving data
+    }
+  };
+
+  async_retrieveData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('key3');
+      if (value !== null) {
+        // We have data!!
+        console.log(value);
+      }
+    } catch (error) {
+      // Error retrieving data
+    }
+  };
+
   // id method2
   uuidv4() {
     var d = new Date().getTime();
@@ -136,32 +123,11 @@ export default class App extends Component {
   {
     
 
-    db.transaction(
-      tx=>{
-          tx.executeSql('insert into test1 (id,timetosleep) VALUES (?,?)',[this.uuidv4(),this.state.time_to_sleep]);
-        },
-        ()=>console.log('sleep time wrote to db'),()=>console.log('sleep time writting to db error')
-      );
-      // turn the toggle
-      this.setState({time_to_sleep: moment(),turntable:'wakeup'});
   };
 
   handleLogWakeUpTime=(event)=>
   {
-    this.setState ({time_wokeup: moment(),turntable:'sleep'});
-    // write timestamp into db
-    db.transaction(
-      tx=>{
-        // find the last session that the duration is over 3hr
-            tx.executeSql('update test1 set timewakeup=? where id=?',[this.state.time_wokeup,this.state.currentsessionid],(_,results)=>{
-              this.setState({time_to_sleep: results.rows.item(0).timetosleep});
-            });
-            this.setState({currentsessionlen: this.state.time_wokeup.diff(this.state.time_to_sleep,'hours',true)});
-            tx.executeSql('update test1 set sessionlen=? where id=?',[this.state.currentsessionlen,this.state.currentsessionid]);
-        },
-        ()=>console.log('wakeup time wrote to db'),
-        ()=>console.log('wakeup time writting to db error')
-      );
+   
 
   };
 
@@ -177,7 +143,7 @@ export default class App extends Component {
           <Text></Text>
           <Button title="log wake up time" onPress = {this.handleLogWakeUpTime}/>
           <Text> </Text>
-          <Button title="sqlite" />
+          <Button title="Async" />
           <Text> current session length: {this.state.currentsessionlen} </Text>
           <Text> turn table: {this.state.turntable} </Text>
       </View>
